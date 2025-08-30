@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{e9226d06-6d7a-4d84-914a-00619249c292}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx;cu;</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{c1419480-483f-4098-898e-9771f1859298}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd;cuh;</Extensions>
+    </Filter>
+    <Filter Include="Shaders Files">
+      <UniqueIdentifier>{a4abaeb9-256b-415a-b6b6-228ca34501ab}</UniqueIdentifier>
+      <Extensions>shader;</Extensions>
+    </Filter>
+    <Filter Include="Other Files">
+      <UniqueIdentifier>{a3b387e9-d46e-4f8c-aedc-eaded843d984}</UniqueIdentifier>
+      <Extensions>hint;</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\main.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\Animation.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\Evaluator.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Header.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Pole.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Randomizer.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Vector3f.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Animation.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Evaluator.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RenderData.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphix.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint">
+      <Filter>Other Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Pole.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphix.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
