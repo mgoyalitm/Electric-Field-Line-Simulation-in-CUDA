@@ -54,6 +54,9 @@
     <ClInclude Include="include\Graphix.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="**\*.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint">
@@ -64,8 +67,11 @@
     <ClCompile Include="src\Pole.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Acoustics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\Graphix.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -17,7 +17,7 @@ namespace Geometry {
 		/// @param y The y component of the vector.
 		/// @param z The z component of the vector.
 		float x, y, z;
-		
+
 		/// @brief Default constructor for the Vector3f class, initializing all components to zero.
 		/// @details This constructor initializes the x, y, and z components of the vector to 0.0f.
 		/// @return A Vector3f object with x, y, and z components set to 0.0f.
@@ -70,7 +70,7 @@ namespace Geometry {
 		}
 
 		__host__ __device__ inline Vector3f operator-() const noexcept {
-			return Vector3f(-x,-y,-z);
+			return Vector3f(-x, -y, -z);
 		}
 
 		/// @brief Multiplies the components of this vector by a scalar value.
@@ -179,7 +179,7 @@ namespace Geometry {
 		float dx = a.x - b.x;
 		float dy = a.y - b.y;
 		float dz = a.z - b.z;
-		
+
 		return sqrtf(dx * dx + dy * dy + dz * dz);
 	}
 
@@ -195,5 +195,37 @@ namespace Geometry {
 		float dz = a.z - b.z;
 
 		return dx * dx + dy * dy + dz * dz;
+	}
+
+	/// @brief Computes the circumcenter of a triangle defined by three points in 3D space.
+	/// @param point1 The first vertex of the triangle.
+	/// @param point2 The second vertex of the triangle.
+	/// @param point3 The third vertex of the triangle.
+	/// @return A Vector3f representing the circumcenter of the triangle. If the points are collinear, returns a default Vector3f.
+	__host__ __device__ inline Vector3f circumcenter(const Vector3f& point1, const Vector3f& point2, const Vector3f& point3) noexcept {
+		Vector3f v21 = point2 - point1;
+		Vector3f v31 = point3 - point1;
+
+		Vector3f cross_product = cross(v21, v31);
+		float denominator = 2.0f * sqr_mag(cross_product);
+
+		if (denominator == 0.0f) {
+			return  Vector3f();
+		}
+
+		Vector3f cross21 = cross(v21, cross_product);
+		Vector3f cross31 = cross(v31, cross_product);
+		float mag21 = sqr_mag(v21);
+		float mag31 = sqr_mag(v31);
+		Vector3f circumcenter = point1 + (mag21 * cross31 - mag31 * cross21) / denominator;
+
+		return circumcenter;
+	}
+
+	/// @brief Checks if a 3D vector is the null (zero) vector.
+	/// @param vector The 3D vector to check.
+	/// @return True if all components of the vector are zero; otherwise, false.
+	__host__ __device__ inline bool IsNullVector(const Vector3f& vector) noexcept {
+		return vector.x == 0.0f && vector.y == 0.0f && vector.z == 0.0f;
 	}
 }

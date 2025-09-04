@@ -27,7 +27,7 @@ namespace Acoustics {
 
 		context = alcCreateContext(device, nullptr);
 		alcMakeContextCurrent(context);
-		alDopplerFactor(Constants::ScalingFactor);
+		alDopplerFactor(Constants::DopplerScaling);
 		alDistanceModel(AL_DISTANCE_MODEL);
 
 		sources.resize(Constants::PolesCount);
@@ -36,13 +36,11 @@ namespace Acoustics {
 		alGenSources(Constants::PolesCount, sources.data());
 		alGenBuffers(Constants::PolesCount, buffers.data());
 
-		// Pre-generate a simple sine at base frequency
-		float baseFreq = 440.0f;
 		std::vector<short> waveform(Samples);
 
 		for (int j = 0; j < Samples; j++) {
 			float t = (float)j / SampleRate;
-			waveform[j] = (short)(32760 * std::sin(Constants::TWO_PI * baseFreq * t));
+			waveform[j] = (short)(Constants::MaxAmplitude * sinf(Constants::TWO_PI * Constants::BaseFrequency * t));
 		}
 
 		for (int i = 0; i < Constants::PI; i++) {
@@ -52,7 +50,6 @@ namespace Acoustics {
 			alSourcePlay(sources[i]);
 			alSourcef(sources[i], AL_PITCH, 0.0f);
 			alSourcef(sources[i], AL_GAIN, 0.0f);
-
 		}
 	}
 
@@ -90,7 +87,6 @@ namespace Acoustics {
 		float cameraZ = -Constants::CameraDistance * cos;
 		float cameraVelocityX = Constants::CameraDistance * Constants::CameraAngularVelocityRadians * cos;
 		float cameraVelocityZ = -Constants::CameraDistance * Constants::CameraAngularVelocityRadians * sin;
-		Geometry::Vector3f cameraPosition = Geometry::Vector3f(cameraX, 0.0f, cameraZ);
 
 		for (int i = 0; i < Constants::PolesCount; i++) {
 			Physics::Pole& pole = data.poles[i];
@@ -113,13 +109,13 @@ namespace Acoustics {
 			alSourcef(sources[i], AL_GAIN, amplitude);
 
 			Geometry::Vector3f position = pole.position;
-			Geometry::Vector3f velocity = pole.velocity * Constants::VelocityScaling;
+			Geometry::Vector3f velocity = pole.velocity * Constants::TimeScaling;
 			alSource3f(sources[i], AL_POSITION, position.x, position.y, position.z);
 			alSource3f(sources[i], AL_VELOCITY, velocity.x, velocity.y, velocity.z);
 		}
 
 		alListener3f(AL_POSITION, cameraX, 0.0f, cameraZ);
-		alListener3f(AL_VELOCITY, cameraVelocityX * Constants::VelocityScaling, 0.0f, cameraVelocityZ * Constants::VelocityScaling);
+		alListener3f(AL_VELOCITY, cameraVelocityX * Constants::TimeScaling, 0.0f, cameraVelocityZ * Constants::TimeScaling);
 
 		ALfloat orientation[6] = { cameraX, 0, cameraZ, 0, 1, 0 };
 		alListenerfv(AL_ORIENTATION, orientation);

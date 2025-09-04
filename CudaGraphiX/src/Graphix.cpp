@@ -16,7 +16,6 @@ namespace Rendering {
 	std::thread thread;
 	std::mutex mutex;
 	double time = 0;
-	double start_time = 0;
 
 	void DrawFieldLines();
 	void DrawSphere(float cx, float cy, float cz, float radius = 0.2f, int slices = 12, int stacks = 12);
@@ -44,7 +43,7 @@ namespace Rendering {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		start_time = glfwGetTime();
+		double start_time = glfwGetTime();
 		const float fov = 45.0f;
 		const float aspect = 1600.0f / 1080.0f;
 		const float n = 0.1f, f = 100.0f;
@@ -69,22 +68,20 @@ namespace Rendering {
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
 
-			float aspect = (float)width / (float)height;
-			float fovY = 60.0f;
-			float near = 0.1f;
-			float far = 10000.0f;
-			float top = tanf(fovY * 0.5f * 3.1415926f / 180.0f) * near;
+			float aspect_ratio = (float)width / (float)height;
+			float top = Constants::MinDrawDistance * tanf(Constants::FieldOfViewRadians / 2.0f);
 			float bottom = -top;
-			float right = top * aspect;
+			float right = top * aspect_ratio;
 			float left = -right;
-			glFrustum(left, right, bottom, top, near, far);
+
+			glFrustum(left, right, bottom, top, Constants::MinDrawDistance, Constants::MaxDrawDistance);
 
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			glTranslatef(0.0f, 0.0f, -Constants::CameraDistance);
 			glRotatef((float)(time * Constants::CameraAngularVelocityDegree), 0, 1, 0);
 
-			glLineWidth(1.4f);
+			glLineWidth(Constants::FieldLineThickness);
 
 			{
 				std::unique_lock<std::mutex> lock(mutex);
@@ -107,8 +104,6 @@ namespace Rendering {
 			return;
 		}
 
-		static float min_alpha = 0.1f;
-		static float max_alpha = 0.4f;
 
 		for (int line_index = 0; line_index < Constants::FieldLinesTotal; line_index++) {
 
@@ -121,10 +116,10 @@ namespace Rendering {
 
 				float t = static_cast<float>(i) / (length - 1);
 				float alpha = connected
-					? max_alpha - (max_alpha - min_alpha) * (1.0f - 4.0f * (t - 0.5f) * (t - 0.5f))
-					: max_alpha - (max_alpha - (min_alpha / 4.0f)) * t;
+					? Constants::MaxAlpha - Constants::AlphaChange * 4.0f * t * (1.0f - t)
+					: Constants::MaxAlpha * (1 - t);
 
-				glColor4f(1.0f, 0.725f, 0.0f, alpha);
+				glColor4f(Constants::LineColorRed, Constants::LineColorGreen, Constants::LineColorBlue, alpha);
 				Geometry::Vector3f point = scene.field_lines[line_index][i];
 
 				if (i > 0)
@@ -140,32 +135,34 @@ namespace Rendering {
 
 				glVertex3f(point.x, point.y, point.z);
 			}
-
+		
 			glEnd();
-
 		}
 
 		for (int i = 0; i < Constants::PolesCount; i++)
 		{
 			Geometry::Vector3f point = scene.poles[i].position;
-			glColor3f(1.0f, 1.0f, 0.5f);
+			glColor3f(Constants::PoleColorGreen, Constants::PoleColorGreen, Constants::PoleColorBlue);
 			DrawSphere(point.x, point.y, point.z, 0.04f);
 		}
 	}
 
 	void DrawSphere(float cx, float cy, float cz, float radius, int slices, int stacks) {
+		
 		for (int i = 0; i <= stacks; ++i) {
-			float lat0 = 3.1415926f * (-0.5f + (float)(i - 1) / stacks);
+		
+			float lat0 = Constants::PI * (-0.5f + (float)(i - 1) / stacks);
 			float z0 = sinf(lat0);
 			float zr0 = cosf(lat0);
 
-			float lat1 = 3.1415926f * (-0.5f + (float)i / stacks);
+			float lat1 = Constants::PI * (-0.5f + (float)i / stacks);
 			float z1 = sinf(lat1);
 			float zr1 = cosf(lat1);
 
 			glBegin(GL_QUAD_STRIP);
+
 			for (int j = 0; j <= slices; ++j) {
-				float lng = 2 * 3.1415926f * (float)(j - 1) / slices;
+				float lng = Constants::TWO_PI * (float)(j - 1) / slices;
 				float x = cosf(lng);
 				float y = sinf(lng);
 

@@ -166,22 +166,36 @@ namespace Evaluation {
 		Geometry::Vector3f position = Physics::fibonacci_point(pole.position, direction, threadIdx.y, Constants::FieldLinesPerPole, Constants::delta);
 		field_lines[offset_index + 1] = position;
 		bool processing = true;
+		int steps = 0;
 
-		while (processing && index < Constants::MaxFieldLineLength) {
+		while (processing && index < Constants::MaxFieldLineLength && steps < Constants::MaxLineEvaluationIterations) {
 			float size = 0.0f;
 
 			while (size < delta) {
-				Geometry::Vector3f field_strength = Physics::naive_field_strength(poles, Constants::PolesCount, position);
-				position += field_strength * (multiplier * dx / Geometry::mag(field_strength));
+				Geometry::Vector3f field = Physics::naive_field_strength(poles, Constants::PolesCount, position);
+				float push_length = multiplier * dx / Geometry::mag(field);
+				position += push_length * field;
 				size += dx;
+				steps++;
+			}
+			
+			Geometry::Vector3f point1 = field_lines[offset_index + index - 1];
+			Geometry::Vector3f point2 = field_lines[offset_index + index - 2];
+			Geometry::Vector3f& point3 = position;
+			Geometry::Vector3f circumcenter = Geometry::circumcenter(point1, point2, point3);
+			float radius = Geometry::dist(circumcenter, point1);
+
+			if (isnan(radius) == false && isinf(radius) == false && radius == 0.0f && Geometry::IsNullVector(circumcenter))
+			{
+				delta = fmax(fmin(Constants::BendingAngle * radius, Constants::delta_max), Constants::dx_min);
+				dx = delta / Constants::EvaluationSteps;
 			}
 
-			Geometry::Vector3f v1 = Geometry::normalize(field_lines[offset_index + index - 2] - field_lines[offset_index + index - 1]);
-			Geometry::Vector3f v2 = Geometry::normalize(position - field_lines[offset_index + index - 1]);
+			Geometry::Vector3f v1 = Geometry::normalize(point2 - point1);
+			Geometry::Vector3f v2 = Geometry::normalize(point3 - point1);
 			float angle = acosf(fminf(fmaxf(Geometry::dot(v1, v2), -1.0f), 1.0f));
 
-			if (angle >= Constants::small_angle) {
-
+			if (angle >= Constants::BendingAngle) {
 				field_lines[offset_index + index++] = position;
 			}
 
@@ -189,7 +203,7 @@ namespace Evaluation {
 				if (i != threadIdx.x) {
 					float dist = Geometry::dist(position, poles[i].position);
 
-					if (dist < Constants::delta) {
+					if (dist < delta) {
 						field_lines[offset_index + index++] = poles[i].position;
 						processing = false;
 					}

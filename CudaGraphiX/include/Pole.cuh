@@ -11,6 +11,8 @@
 /// @details This namespace encapsulates various functions and structures that are essential for simulating and visualizing magnetic fields, including the representation of poles, calculation of field strengths, generation of points on a Fibonacci sphere, and animation of poles.
 namespace Physics {
 
+	constexpr float dx2 = 10.0f * Constants::dx * Constants::dx;
+
 	/// @brief Represents a pole with physical properties such as mass, strength, position, and velocity.
 	/// @details This structure encapsulates the characteristics of a pole, which can be used in simulations involving magnetic fields. It includes properties for strength, mass, position, and velocity, allowing for dynamic interactions and animations.
 	struct Pole
@@ -23,10 +25,6 @@ namespace Physics {
 		/// @details This value is used to determine the inertia of the pole, affecting how it responds to forces applied to it.
 		float mass;
 
-		/// @brief A floating-point variable representing a rotation constant.
-		/// @details This constant can be used to define rotational behavior or influence in simulations involving the pole.
-		float rotation_constant;
-
 		/// @brief Represents a 3-dimensional vector of floating-point values, used to denote a position vector in 3D space.
 		/// @details This vector indicates the location of the pole in a 3D coordinate system.
 		Geometry::Vector3f position;
@@ -34,15 +32,6 @@ namespace Physics {
 		/// @brief Represents a 3-dimensional vector of floating-point values, used to denote the velocity vector of the pole.
 		/// @details This vector indicates the speed and direction of the pole's movement in 3D space.
 		Geometry::Vector3f velocity;
-		
-		/// @brief Parameterized constructor initializes the pole with specified strength, mass, position, and velocity.
-		/// @details This constructor allows for the creation of a Pole object with specific physical properties.
-		/// @param strength The strength of the pole.
-		/// @param mass The mass of the pole.
-		/// @param position The position of the pole in 3D space.
-		/// @param velocity The velocity of the pole in 3D space.
-		/// @return A Pole object initialized with the specified parameters.
-		__host__ __device__ inline Pole(float strength, float mass, Geometry::Vector3f position, Geometry::Vector3f velocity) : strength(strength), mass(mass), position(position), velocity(velocity), rotation_constant(0.0) {}
 
 		/// @brief Parameterized constructor initializes the pole with specified strength, mass, position, and velocity.
 		/// @details This constructor allows for the creation of a Pole object with specific physical properties.
@@ -50,17 +39,16 @@ namespace Physics {
 		/// @param mass The mass of the pole.
 		/// @param position The position of the pole in 3D space.
 		/// @param velocity The velocity of the pole in 3D space.
-		/// @param acceleration The acceleration of the pole in 3D space.
 		/// @return A Pole object initialized with the specified parameters.
-		__host__ __device__ inline Pole(float strength, float mass, Geometry::Vector3f position, Geometry::Vector3f velocity, float rotation_constant) : strength(strength), mass(mass), position(position), velocity(velocity), rotation_constant(rotation_constant) {}
+		__host__ __device__ inline Pole(float strength, float mass, Geometry::Vector3f position, Geometry::Vector3f velocity) : strength(strength), mass(mass), position(position), velocity(velocity) {}
 
 		/// @brief Default constructor for the Pole class, initializing its members to default values.
 		/// @details This constructor creates a Pole object with default values for strength, mass, position, and velocity.
 		/// @return Constructs a Pole object with strength and mass set to 0.0f, and position and velocity set to zero vectors.
-		__host__ __device__ inline Pole() : strength(0.0f), mass(0.0f), position(Geometry::Vector3f(0.0f, 0.0f, 0.0f)), velocity(Geometry::Vector3f(0.0f, 0.0f, 0.0f)), rotation_constant(0.0f) {}
+		__host__ __device__ inline Pole() : strength(0.0f), mass(0.0f), position(Geometry::Vector3f(0.0f, 0.0f, 0.0f)), velocity(Geometry::Vector3f(0.0f, 0.0f, 0.0f)) {}
 
 		__host__ __device__ inline Pole operator-() const noexcept {
-			return Pole(strength, mass, -position, -velocity, -rotation_constant);
+			return Pole(strength, mass, -position, -velocity);
 		}
 	};
 
@@ -78,7 +66,9 @@ namespace Physics {
 			return Geometry::Vector3f(0.0f, 0.0f, 0.0f);
 		}
 
-		float multiplier = pole.strength / (sqr_dist * sqrtf(sqr_dist));
+		float k = sqr_dist + dx2;
+
+		float multiplier = pole.strength / (k * sqrtf(sqr_dist));
 		return Geometry::Vector3f(direction.x * multiplier, direction.y * multiplier, direction.z * multiplier);
 	}
 
@@ -104,7 +94,7 @@ namespace Physics {
 	/// @param point The point in space where the gravitational force is calculated.
 	/// @return A Vector3f representing the gravitational force vector at the specified point due to the pole. Returns a zero vector if the point coincides with the pole's position.
 	__host__ __device__ inline Geometry::Vector3f naive_gravity(const Pole& pole, const Geometry::Vector3f& point) noexcept {
-		Geometry::Vector3f direction =  pole.position - point;
+		Geometry::Vector3f direction = pole.position - point;
 		float sqr_dist = Geometry::sqr_mag(direction);
 
 		if (sqr_dist == 0.0f) {
@@ -122,7 +112,7 @@ namespace Physics {
 	/// @return The resulting 3D gravitational vector at the specified point.
 	__host__ __device__ inline Geometry::Vector3f naive_gravity(Pole* poles, int pole_count, const Geometry::Vector3f& point) noexcept {
 		Geometry::Vector3f gravity(0.0f, 0.0f, 0.0f);
-	
+
 		for (int i = 0; i < pole_count; ++i) {
 			gravity += naive_gravity(poles[i], point);
 		}
@@ -139,12 +129,11 @@ namespace Physics {
 	/// @return A Vector3f representing the computed Fibonacci point on the sphere.
 	__host__ __device__ inline Geometry::Vector3f fibonacci_point(Geometry::Vector3f point, Geometry::Vector3f direction, int index, int total, float radius) {
 		const float phi = 2.39996322973f;
-		float y = 1.0f - (2.0f * index + 1.0f) / (total - 1);
+		float y = 1.0f - (2.0f * index + 1.0f) / (float)total;
 		float r = sqrtf(1.0f - y * y);
 		float theta = index * phi;
 		float x = cosf(theta) * r;
 		float z = sinf(theta) * r;
-		//return Geometry::Vector3f(x * radius + point.x, y * radius + point.y, z * radius + point.z);
 
 		if (point.x == 0 && point.y == 0 && point.z == 0) {
 			return Geometry::Vector3f(x * radius, y * radius, z * radius);
@@ -165,10 +154,34 @@ namespace Physics {
 		Geometry::Vector3f z_vec = Geometry::normalize(Geometry::cross(x_vec, y_vec));
 
 		Geometry::Vector3f vector = x_vec * (x * radius) + y_vec * (y * radius) + z_vec * (z * radius) + point;
-
 		return vector;
 	}
 
+	/// @brief Calculates a point on a Fibonacci sphere based on the given index and radius.
+	/// @param point The base point from which the Fibonacci point is calculated.
+	/// @param index The index of the point on the Fibonacci sphere.
+	/// @param radius The radius of the sphere.
+	/// @param total The total number of points on the sphere.
+	/// @return A Vector3f representing the computed Fibonacci point on the sphere.
+	__host__ __device__ inline Geometry::Vector3f fibonacci_point(Geometry::Vector3f point, int index, int total, float radius) {
+		const float phi = 2.39996322973f;
+		float y = 1.0f - (2.0f * index + 1.0f) / (float)total;
+		float r = sqrtf(1.0f - y * y);
+		float theta = index * phi;
+		float x = cosf(theta) * r;
+		float z = sinf(theta) * r;
+		return Geometry::Vector3f(x * radius + point.x, y * radius + point.y, z * radius + point.z);
+	}
+
+	/// @brief Calculates a point on a Fibonacci sphere based on the given index and radius.
+	/// @param point The base point from which the Fibonacci point is calculated.
+	/// @param index The index of the point on the Fibonacci sphere.
+	/// @param radius The radius of the sphere.
+	/// @param total The total number of points on the sphere.
+	/// @return A Vector3f representing the computed Fibonacci point on the sphere.
+	__host__ __device__ inline Geometry::Vector3f fibonacci_point( int index, int total, float radius) {
+		return fibonacci_point(Geometry::Vector3f(), index, total, radius);
+	}
 	/// @brief Animates the poles on the CPU.
 	/// @details This function updates the positions and velocities of the poles based on their field strengths and interactions.
 	/// @param poles Pointer to an array of Pole objects.

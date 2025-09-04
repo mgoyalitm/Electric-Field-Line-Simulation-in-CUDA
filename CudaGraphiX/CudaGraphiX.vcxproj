@@ -96,7 +96,6 @@
     <ClInclude Include="include\Vector3f.cuh" />
     <ClInclude Include="**\*.h" />
     <ClCompile Include="src\Acoustics.cpp" />
-    <ClCompile Include="src\Graphix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\Dependencies\OpenAL\dll\OpenAL32.dll">
@@ -110,6 +109,7 @@
     </CudaCompile>
     <CudaCompile Include="src\Animation.cu" />
     <CudaCompile Include="src\main.cu" />
+    <ClCompile Include="src\Graphix.cpp" />
     <ClCompile Include="src\Pole.cpp" />
   </ItemGroup>
   <ItemGroup>

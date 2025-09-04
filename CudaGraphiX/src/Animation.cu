@@ -90,8 +90,7 @@ namespace Animation {
 
 	void AnimationThread() {
 
-		Physics::Pole* poles = Randomization::randomPoles(Constants::PolesCount, Constants::MaxInitialSpeed, Constants::MaxMass, Constants::MaxPlacementDistance, Constants::MaxStrength);
-		//Physics::Pole* poles = Randomization::randomDipoles(Constants::PolesCount, Constants::MaxMass, Constants::MaxPlacementDistance, Constants::MaxStrength);
+		Physics::Pole* poles = Randomization::randomDipoles();
 
 		static std::mutex animation_mutex;
 		std::unique_lock<std::mutex> lock(animation_mutex);
