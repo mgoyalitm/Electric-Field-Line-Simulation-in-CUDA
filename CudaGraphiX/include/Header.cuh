@@ -32,15 +32,23 @@ namespace Constants {
 #pragma region Camera and Rendering
 	/// @brief Represents the camera's angular velocity in degrees per unit time.
 	/// @details This constant defines how quickly the camera rotates around a focal point, affecting the speed of camera movement in animations or visualizations.
-	constexpr float CameraAngularVelocityDegree = 16.0f;
+	constexpr float CameraAngularVelocityDegree = 2.5f;
 
 	/// @brief Represents the camera's angular velocity in radians per unit time.
 	/// @details This constant defines how quickly the camera rotates around a focal point in radians, affecting the speed of camera movement in animations or visualizations.
 	constexpr float CameraAngularVelocityRadians = PI * CameraAngularVelocityDegree / 180.0f;
 
+	/// @brief Defines the camera elevation angle in degrees.
+	/// @details This constant specifies the angle at which the camera is elevated above the horizontal plane, influencing the perspective and viewpoint in visualizations.
+	constexpr float CameraElevationDegrees = 15.0f;
+
+	/// @brief Calculates the camera elevation angle in radians from the elevation angle in degrees.
+	/// @details This constant is derived from the CameraElevationDegrees constant and is used in calculations that require the elevation angle to be expressed in radians, such as in camera positioning and orientation.
+	constexpr float CameraElevationRadians = PI * CameraElevationDegrees / 180.0f;
+
 	/// @brief Defines a constant representing the camera distance.
 	/// @details This constant specifies the distance of the camera from the origin or focal point, which can influence the perspective and field of view in visualizations.
-	constexpr float CameraDistance = 25.0f;
+	constexpr float CameraDistance = 35.0f;
 
 	/// @brief Defines the minimum draw distance as a constant expression.
 	/// @details This constant specifies the closest distance at which objects will be rendered, helping to avoid rendering artifacts that can occur when objects are too close to the camera.
@@ -49,10 +57,10 @@ namespace Constants {
 	/// @brief Defines the maximum draw distance as a constant expression.
 	/// @details This constant specifies the furthest distance at which objects will be rendered, helping to optimize performance by culling distant objects that are not visible.
 	constexpr float MaxDrawDistance = 100.0f * CameraDistance;
-	
+
 	/// @brief Represents the field of view in degrees.
 	/// @details This constant defines the vertical field of view angle for the camera, affecting how much of the scene is visible in the rendered output.
-	constexpr float FieldOfViewDegrees = 60.0f;
+	constexpr float FieldOfViewDegrees = 45.0f;
 
 	/// @brief Calculates the field of view in radians from the field of view in degrees.
 	/// @details This constant is derived from the FieldOfViewDegrees constant and is used in calculations that require the field of view to be expressed in radians, such as in perspective projection matrices.
@@ -60,7 +68,7 @@ namespace Constants {
 
 	/// @brief Defines the thickness of a field line as a constant value.
 	/// @details This constant is used to specify the visual thickness of field lines in the rendering process, affecting their appearance in the final output.
-	constexpr float FieldLineThickness = 2.0f;
+	constexpr float FieldLineThickness = 1.0f;
 
 	/// @brief Defines the radius of a pole sphere as a constant floating-point value.
 	/// @details This constant is used to specify the size of the spheres representing poles in the rendering process, affecting their visibility and prominence in the final output.
@@ -68,11 +76,11 @@ namespace Constants {
 
 	/// @brief Represents the minimum alpha value for a field line.
 	/// @details This constant defines the minimum transparency level for field lines in the rendering process, ensuring they remain visible while allowing for some degree of transparency.
-	constexpr float MinAlpha = 0.125f;
+	constexpr float MinAlpha = 0.18f;
 
 	/// @brief Represents the maximum alpha value for a field line.
 	/// @details This constant defines the maximum opacity level for field lines in the rendering process, ensuring they are fully visible without being overly opaque.
-	constexpr float MaxAlpha = 0.400f;
+	constexpr float MaxAlpha = 0.54f;
 
 	/// @brief Represents the difference between MaxAlpha and MinAlpha as a constant expression.
 	/// @details This constant is used to calculate the range of alpha values for field lines, allowing for dynamic adjustments in transparency during rendering.
@@ -80,7 +88,7 @@ namespace Constants {
 
 	/// @brief Represents the red component value for a line color.
 	/// @details This constant defines the intensity of the red color channel for lines in the rendering process, contributing to the overall color appearance of the lines.
-	constexpr float LineColorRed = 1.0f;
+	constexpr float LineColorRed = 1.5f;
 
 	/// @brief Represents the green component value for a line color.
 	/// @details This constant defines the intensity of the green color channel for lines in the rendering process, contributing to the overall color appearance of the lines.
@@ -110,7 +118,7 @@ namespace Constants {
 #pragma region Acoustics
 	/// @brief Defines a constant expression for Doppler scaling based on sound speed and camera distance.
 	/// @details This constant is used to adjust the Doppler effect in simulations involving sound, taking into account the speed of sound and the distance of the camera from the sound source.
-	constexpr float DopplerScaling = 0.1f * SoundSpeed / CameraDistance;
+	constexpr float DopplerScaling = 0.001f * SoundSpeed / CameraDistance;
 
 	/// @brief Represents the base frequency value.
 	/// @details This constant defines a reference frequency used in sound simulations, often corresponding to the standard pitch of musical notes (A4 = 440 Hz).
@@ -151,7 +159,7 @@ namespace Constants {
 
 	/// @brief Defines a constant representing the number of poles.
 	/// @details This constant is used to specify the number of poles in the animation sequence, which can be adjusted based on the requirements of the simulation.
-	constexpr int PolesCount = 64;
+	constexpr int PolesCount = 128;
 
 	/// @brief Defines the number of field lines per pole as a constant.
 	/// @details This constant determines how many field lines are generated for each pole in the animation, which can affect the visual complexity and performance of the simulation.
@@ -225,7 +233,7 @@ namespace Constants {
 
 	/// @brief Defines a constant scaling factor for time-related calculations.
 	/// @details This constant is used to scale time values in the simulation or animation, allowing for adjustments in speed or duration.
-	constexpr float TimeScaling = 0.2f;
+	constexpr float TimeScaling = 0.001f;
 
 	/// @brief Defines a constant representing a time step value.
 	/// @details This constant is used to define the duration of each animation step, which can be adjusted to control the speed of the animation.
@@ -243,11 +251,11 @@ namespace Constants {
 
 	/// @brief Represents the maximum allowed placement distance.
 	/// @details This constant defines the furthest distance from a reference point where objects can be placed, ensuring they remain within a manageable range for the simulation.
-	constexpr float MaxPlacementDistance = 12.0f;
+	constexpr float MaxPlacementDistance = 0.001f;
 
 	/// @brief Represents the minimum allowed placement distance.
 	/// @details This constant is used to ensure that objects in the simulation are not placed too close to a reference point, preventing overlap or unrealistic positioning.
-	constexpr float MinPlacementDistance = MaxPlacementDistance / 4.0f;
+	constexpr float MinPlacementDistance = MaxPlacementDistance / 10.0f;
 
 	/// @brief Represents the maximum allowed mass as a constant floating-point value.
 	/// @details This constant is used to limit the mass of objects in the simulation, ensuring they do not exceed a specified threshold that could affect performance or realism.
@@ -255,7 +263,7 @@ namespace Constants {
 
 	/// @brief Represents the minimum allowed mass value.
 	/// @details This constant is used to ensure that objects in the simulation have a minimum mass, preventing
-	constexpr float MinMass = MaxMass / 4.0f;
+	constexpr float MinMass = MaxMass / 10.0f;
 
 	/// @brief Defines the maximum strength value as a constant.
 	/// @details This constant is used to limit the strength of forces or fields in the simulation, ensuring they remain within a manageable range for realistic behavior.
@@ -263,6 +271,6 @@ namespace Constants {
 
 	/// @brief Defines the minimum strength value as a constant.
 	/// @details This constant is used to ensure that forces or fields in the simulation have a minimum strength, preventing them from being too weak to have a noticeable effect.
-	constexpr float MinStrength = MaxStrength / 2.5f;
+	constexpr float MinStrength = MaxStrength / 10.0f;
 #pragma endregion
 }

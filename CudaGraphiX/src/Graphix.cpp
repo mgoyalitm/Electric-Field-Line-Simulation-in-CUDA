@@ -16,7 +16,9 @@ namespace Rendering {
 	std::thread thread;
 	std::mutex mutex;
 	double time = 0;
-
+	bool show_bounding_box = false;
+	bool show_axes = false;
+	bool full_screen = false;
 	void DrawFieldLines();
 	void DrawSphere(float cx, float cy, float cz, float radius = 0.2f, int slices = 12, int stacks = 12);
 
@@ -26,10 +28,17 @@ namespace Rendering {
 			return false;
 		}
 
-		//window = glfwCreateWindow(1600, 1080, "Electric Field Simulation", NULL, NULL);
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-		GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "Electric Field Simulation", monitor, NULL);
+		if (full_screen)
+		{
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+			GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "Electric Field Simulation", monitor, NULL);
+		}
+		else
+		{
+			window = glfwCreateWindow(1600, 1080, "Electric Field Simulation", NULL, NULL);
+
+		}
 
 		if (!window) {
 			glfwTerminate();
@@ -78,8 +87,50 @@ namespace Rendering {
 
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
-			glTranslatef(0.0f, 0.0f, -Constants::CameraDistance);
-			glRotatef((float)(time * Constants::CameraAngularVelocityDegree), 0, 1, 0);
+
+			float radius = Constants::CameraDistance;
+			float azimuth = (float)time * Constants::CameraAngularVelocityRadians;
+			float elevation = Constants::CameraElevationRadians;
+			float camX = radius * cosf(elevation) * sinf(azimuth);
+			float camY = radius * sinf(elevation);
+			float camZ = radius * cosf(elevation) * cosf(azimuth);
+
+
+			// Build forward (view) vector
+			float dirX = -camX;
+			float dirY = -camY;
+			float dirZ = -camZ;
+
+			// Normalize forward
+			float cameraDistance = 1.0f / sqrtf(dirX * dirX + dirY * dirY + dirZ * dirZ);
+			dirX *= cameraDistance; 
+			dirY *= cameraDistance; 
+			dirZ *= cameraDistance;
+
+			// Up vector world-space
+			float upX = 0.0f, upY = 1.0f, upZ = 0.0f;
+
+			// Right = dir × up
+			float rightX = dirY * upZ - dirZ * upY;
+			float rightY = dirZ * upX - dirX * upZ;
+			float rightZ = dirX * upY - dirY * upX;
+
+			// Recompute up = right × dir
+			upX = rightY * dirZ - rightZ * dirY;
+			upY = rightZ * dirX - rightX * dirZ;
+			upZ = rightX * dirY - rightY * dirX;
+
+			// Construct the view matrix manually
+			GLfloat m[16] = {
+				rightX,  upX, -dirX, 0.0f,
+				rightY,  upY, -dirY, 0.0f,
+				rightZ,  upZ, -dirZ, 0.0f,
+				0.0f,    0.0f, 0.0f, 1.0f
+			};
+
+			glMultMatrixf(m);
+			glTranslatef(-camX, -camY, -camZ);
+
 
 			glLineWidth(Constants::FieldLineThickness);
 
@@ -87,6 +138,7 @@ namespace Rendering {
 				std::unique_lock<std::mutex> lock(mutex);
 				Acoustics::GenerateAcoustics(scene, time);
 				DrawFieldLines();
+
 			}
 
 			glfwSwapBuffers(window);
@@ -135,7 +187,7 @@ namespace Rendering {
 
 				glVertex3f(point.x, point.y, point.z);
 			}
-		
+
 			glEnd();
 		}
 
@@ -145,12 +197,62 @@ namespace Rendering {
 			glColor3f(Constants::PoleColorGreen, Constants::PoleColorGreen, Constants::PoleColorBlue);
 			DrawSphere(point.x, point.y, point.z, 0.04f);
 		}
+
+		if (show_axes || show_bounding_box) {
+			glBegin(GL_LINES);
+		}
+
+		if (show_axes) {
+			float r = Constants::CameraDistance / 5.0f;
+
+			glColor4f(1.0f, 0.0f, 0.0f, 0.2f);
+			glVertex3f(-r, 0, 0);
+			glVertex3f(r, 0, 0);
+
+			glColor4f(0.0f, 1.0f, 0.0f, 0.2f);
+			glVertex3f(0.0f, -r, 0.0f);
+			glVertex3f(0.0f, r, 0.0f);
+
+			glColor4f(0.0f, 0.0f, 1.0f, 0.2f);
+			glVertex3f(0.0f, 0.0f, -r);
+			glVertex3f(0.0f, 0.0f, r);
+		}
+
+		if (show_bounding_box) {
+			float r = Constants::CameraDistance;
+			glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
+
+			for (int i = 0; i < 2; i++) {
+				float x1 = (i == 0) ? r : -r;
+
+				for (int j = 0; j < 2; j++) {
+					float y1 = (j == 0) ? r : -r;
+					float z1 = (i + j) % 2 == 0 ? r : -r;
+
+					for (int k = 0; k < 3; k++) {
+						float x2 = (k == 0) ? -x1 : x1;
+						float y2 = (k == 1) ? -y1 : y1;
+						float z2 = (k == 2) ? -z1 : z1;
+
+						glVertex3f(x1, y1, z1);
+						glVertex3f(x2, y2, z2);
+					}
+				}
+			}
+
+
+		}
+		
+		if (show_axes || show_bounding_box) {
+			glEnd();
+		}
+
 	}
 
 	void DrawSphere(float cx, float cy, float cz, float radius, int slices, int stacks) {
-		
+
 		for (int i = 0; i <= stacks; ++i) {
-		
+
 			float lat0 = Constants::PI * (-0.5f + (float)(i - 1) / stacks);
 			float z0 = sinf(lat0);
 			float zr0 = cosf(lat0);

@@ -137,7 +137,7 @@ namespace Randomization {
 			float distance = random(Constants::MaxPlacementDistance, Constants::MinPlacementDistance);
 
 			Geometry::Vector3f center_position = randomVector(distance);
-			float separation = 1.6f * distance / Constants::PolesCount;
+			float separation = 7.0f * distance / Constants::PolesCount;
 			Geometry::Vector3f dipole_vector = randomVector(separation);
 
 			float strength = random(Constants::MaxStrength, Constants::MinStrength);

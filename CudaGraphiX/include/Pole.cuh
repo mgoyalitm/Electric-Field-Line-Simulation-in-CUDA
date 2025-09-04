@@ -11,7 +11,8 @@
 /// @details This namespace encapsulates various functions and structures that are essential for simulating and visualizing magnetic fields, including the representation of poles, calculation of field strengths, generation of points on a Fibonacci sphere, and animation of poles.
 namespace Physics {
 
-	constexpr float dx2 = 10.0f * Constants::dx * Constants::dx;
+
+	constexpr float dx2 = 0.01f * Constants::dx * Constants::dx;
 
 	/// @brief Represents a pole with physical properties such as mass, strength, position, and velocity.
 	/// @details This structure encapsulates the characteristics of a pole, which can be used in simulations involving magnetic fields. It includes properties for strength, mass, position, and velocity, allowing for dynamic interactions and animations.

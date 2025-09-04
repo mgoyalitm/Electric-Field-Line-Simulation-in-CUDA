@@ -80,13 +80,15 @@ namespace Acoustics {
 			InitializeAcoustics();
 		}
 
-		float theta = (float)(animation_time * Constants::CameraAngularVelocityRadians);
-		float sin = sinf(theta);
-		float cos = cosf(theta);
-		float cameraX = Constants::CameraDistance * sin;
-		float cameraZ = -Constants::CameraDistance * cos;
-		float cameraVelocityX = Constants::CameraDistance * Constants::CameraAngularVelocityRadians * cos;
-		float cameraVelocityZ = -Constants::CameraDistance * Constants::CameraAngularVelocityRadians * sin;
+		float radius = Constants::CameraDistance;
+		float azimuth = (float)animation_time * Constants::CameraAngularVelocityRadians;
+		float elevation = Constants::CameraElevationRadians;
+		float cameraX = radius * cosf(elevation) * sinf(azimuth);
+		float cameraY = radius * sinf(elevation);
+		float cameraZ = radius * cosf(elevation) * cosf(azimuth);
+		float cameraVelocityX = cameraX * Constants::CameraAngularVelocityRadians;
+		float cameraVelocityZ = -cameraZ * Constants::CameraAngularVelocityRadians;
+		float cameraDistance = sqrtf(cameraX * cameraX + cameraY * cameraY + cameraZ * cameraZ);
 
 		for (int i = 0; i < Constants::PolesCount; i++) {
 			Physics::Pole& pole = data.poles[i];
@@ -94,7 +96,7 @@ namespace Acoustics {
 			float mass_weight = 1.25f * (pole.mass / Constants::MaxMass - 0.2);
 			float strength_weight = (9.0f * (abs(pole.strength) / Constants::MaxStrength) - 1.0f) / 8.0f;
 			float amplitude_variation_time = 5.0f - mass_weight * 4.8f;
-			
+
 			float omega_frequency = Constants::TWO_PI * (0.25f + 9.25 * strength_weight);
 			float omega_amp = Constants::TWO_PI * mass_weight / amplitude_variation_time;
 
@@ -103,7 +105,7 @@ namespace Acoustics {
 			float pitch = frequency * frequency_variation / 440.0f;
 
 			float base_amplitude = 1.25f * Constants::CameraDistance * (0.01f + 0.1f * mass_weight);
-			float amplitude = base_amplitude * (0.1 +  0.45f *(1.0f + cosf(omega_amp * animation_time)));
+			float amplitude = base_amplitude * (0.1 + 0.45f * (1.0f + cosf(omega_amp * animation_time)));
 
 			alSourcef(sources[i], AL_PITCH, pitch);
 			alSourcef(sources[i], AL_GAIN, amplitude);
@@ -115,9 +117,8 @@ namespace Acoustics {
 		}
 
 		alListener3f(AL_POSITION, cameraX, 0.0f, cameraZ);
-		alListener3f(AL_VELOCITY, cameraVelocityX * Constants::TimeScaling, 0.0f, cameraVelocityZ * Constants::TimeScaling);
-
-		ALfloat orientation[6] = { cameraX, 0, cameraZ, 0, 1, 0 };
+		alListener3f(AL_VELOCITY, cameraVelocityX / Constants::TimeScaling, 0.0f, cameraVelocityZ / Constants::TimeScaling);
+		ALfloat orientation[6] = { -cameraX / cameraDistance, -cameraY / cameraDistance, -cameraZ / cameraDistance, 0, 1, 0 };
 		alListenerfv(AL_ORIENTATION, orientation);
 	}
 
