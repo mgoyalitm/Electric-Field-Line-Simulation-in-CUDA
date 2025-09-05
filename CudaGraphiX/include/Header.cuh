@@ -40,7 +40,7 @@ namespace Constants {
 
 	/// @brief Defines the camera elevation angle in degrees.
 	/// @details This constant specifies the angle at which the camera is elevated above the horizontal plane, influencing the perspective and viewpoint in visualizations.
-	constexpr float CameraElevationDegrees = 15.0f;
+	constexpr float CameraElevationDegrees = 0.0f;
 
 	/// @brief Calculates the camera elevation angle in radians from the elevation angle in degrees.
 	/// @details This constant is derived from the CameraElevationDegrees constant and is used in calculations that require the elevation angle to be expressed in radians, such as in camera positioning and orientation.
@@ -88,7 +88,7 @@ namespace Constants {
 
 	/// @brief Represents the red component value for a line color.
 	/// @details This constant defines the intensity of the red color channel for lines in the rendering process, contributing to the overall color appearance of the lines.
-	constexpr float LineColorRed = 1.5f;
+	constexpr float LineColorRed = 1.0f;
 
 	/// @brief Represents the green component value for a line color.
 	/// @details This constant defines the intensity of the green color channel for lines in the rendering process, contributing to the overall color appearance of the lines.
@@ -115,27 +115,7 @@ namespace Constants {
 	constexpr float PoleRadius = 0.002f * CameraDistance;
 #pragma endregion
 
-#pragma region Acoustics
-	/// @brief Defines a constant expression for Doppler scaling based on sound speed and camera distance.
-	/// @details This constant is used to adjust the Doppler effect in simulations involving sound, taking into account the speed of sound and the distance of the camera from the sound source.
-	constexpr float DopplerScaling = 0.001f * SoundSpeed / CameraDistance;
 
-	/// @brief Represents the base frequency value.
-	/// @details This constant defines a reference frequency used in sound simulations, often corresponding to the standard pitch of musical notes (A4 = 440 Hz).
-	constexpr float BaseFrequency = 440.0f;
-
-	/// @brief Represents the minimum frequency value.
-	/// @details This constant defines the lowest frequency that can be used in sound simulations, ensuring that audio remains within a perceptible range.
-	constexpr float MinFrequency = 65.0f;
-
-	/// @brief Defines the maximum frequency value.
-	/// @details This constant sets the upper limit for frequency in sound simulations, ensuring that audio remains within a perceptible range and does not exceed typical human hearing capabilities.
-	constexpr float MaxFrequency = 2000.0f;
-
-	/// @brief Represents the maximum amplitude value as a constant floating-point number.
-	/// @details This constant defines the peak amplitude for audio signals, ensuring that sound levels remain within a safe and manageable range to prevent distortion or damage to audio equipment.
-	constexpr float MaxAmplitude = 32760.0f;
-#pragma endregion
 
 #pragma region Frame Management
 	/// @brief Defines the number of frames to be processed in parallel.
@@ -148,7 +128,7 @@ namespace Constants {
 
 	/// @brief Defines a constant representing frames per second.
 	/// @details This constant is used to specify the frame rate of the animation, which can affect the smoothness and performance of the rendering process.
-	constexpr int FPS = 100;
+	constexpr int FPS = 50;
 
 	/// @brief Defines the duration of a single frame in milliseconds based on the frames per second (FPS).
 	/// @details This constant is calculated by dividing 1000 milliseconds by the FPS value, providing a time duration for each frame in the animation or simulation.
@@ -159,7 +139,7 @@ namespace Constants {
 
 	/// @brief Defines a constant representing the number of poles.
 	/// @details This constant is used to specify the number of poles in the animation sequence, which can be adjusted based on the requirements of the simulation.
-	constexpr int PolesCount = 128;
+	constexpr int PolesCount = 85;
 
 	/// @brief Defines the number of field lines per pole as a constant.
 	/// @details This constant determines how many field lines are generated for each pole in the animation, which can affect the visual complexity and performance of the simulation.
@@ -243,7 +223,7 @@ namespace Constants {
 #pragma region Placement and randomitaion
 	/// @brief Defines the maximum initial speed as a constant floating-point value.
 	/// @details This constant is used to limit the initial speed of objects in the simulation, ensuring that they do not exceed a specified threshold.
-	constexpr float MaxInitialSpeed = 1.0f;
+	constexpr float MaxInitialSpeed = 0.0f;
 
 	/// @brief Defines the minimum initial speed as a constant floating-point value.
 	/// @details This constant is used to ensure that objects in the simulation have a minimum initial speed, preventing them from being stationary or moving too slowly.
@@ -251,7 +231,7 @@ namespace Constants {
 
 	/// @brief Represents the maximum allowed placement distance.
 	/// @details This constant defines the furthest distance from a reference point where objects can be placed, ensuring they remain within a manageable range for the simulation.
-	constexpr float MaxPlacementDistance = 0.001f;
+	constexpr float MaxPlacementDistance = 0.0001f;
 
 	/// @brief Represents the minimum allowed placement distance.
 	/// @details This constant is used to ensure that objects in the simulation are not placed too close to a reference point, preventing overlap or unrealistic positioning.
@@ -272,5 +252,63 @@ namespace Constants {
 	/// @brief Defines the minimum strength value as a constant.
 	/// @details This constant is used to ensure that forces or fields in the simulation have a minimum strength, preventing them from being too weak to have a noticeable effect.
 	constexpr float MinStrength = MaxStrength / 10.0f;
+#pragma endregion
+
+#pragma region Acoustics
+	/// @brief Defines a constant expression for Doppler scaling based on sound speed and camera distance.
+	/// @details This constant is used to adjust the Doppler effect in simulations involving sound, taking into account the speed of sound and the distance of the camera from the sound source.
+	constexpr float DopplerScaling = (SoundSpeed / CameraDistance);
+
+	/// @brief Represents the base frequency value.
+	/// @details This constant defines a reference frequency used in sound simulations, often corresponding to the standard pitch of musical notes (A4 = 440 Hz).
+	constexpr float BaseFrequency = 440.0f;
+
+	/// @brief Represents the maximum amplitude value as a constant floating-point number.
+	/// @details This constant defines the peak amplitude for audio signals, ensuring that sound levels remain within a safe and manageable range to prevent distortion or damage to audio equipment.
+	constexpr float PeakAmplitude = 32760.0f;
+
+	/// @brief Represents the minimum amplitude value as a constant floating-point number.
+	/// @details This constant defines the lowest amplitude for audio signals, ensuring that sound levels remain above a certain threshold to be audible and effective in simulations.
+	constexpr int SampleRate = 44100;
+
+	/// @brief Defines the total number of audio samples based on the sample rate and a fixed duration.
+	/// @details This constant calculates the total number of audio samples for a given duration (3 seconds in this case) based on the specified sample rate, which is essential for audio processing and playback.
+	constexpr int Samples = 3 * SampleRate;
+
+	/// @brief Defines the amplitude scaling factor as a constant expression.
+	/// @details This constant is used to scale the amplitude of audio signals, allowing for adjustments in volume and intensity during sound processing.
+	constexpr float Amplitude = 2.0;
+
+	/// @brief Defines the amplitude variation factor as a constant expression.
+	/// @details This constant is used to introduce variability in the amplitude of audio signals, creating a more dynamic and realistic sound experience in simulations.
+	constexpr float AmplitudeVariation = 0.45;
+
+	/// @brief Defines the minimum time interval for amplitude variation in seconds.
+	/// @details This constant specifies the minimum duration over which amplitude variations can occur, ensuring that changes in volume are gradual and perceptible in audio simulations.
+	constexpr float MinAmplitudeVariationTime = 0.5f;
+
+	/// @brief Defines the maximum time interval for amplitude variation in seconds.
+	/// @details This constant specifies the maximum duration over which amplitude variations can occur, allowing for more pronounced changes in volume while maintaining a natural sound experience in audio simulations.
+	constexpr float MaxAmplitudeVariationTime = 3.0f;
+
+	/// @brief Defines the maximum frequency value.
+	/// @details This constant sets the upper limit for frequency in sound simulations, ensuring that audio remains within a perceptible range and does not exceed typical human hearing capabilities.
+	constexpr float MaxFrequency = 2500.0f;
+
+	/// @brief Represents the minimum frequency value.
+	/// @details This constant defines the lowest frequency that can be used in sound simulations, ensuring that audio remains within a perceptible range.
+	constexpr float MinFrequency = 65.0f;
+
+	/// @brief Defines the frequency variation factor as a constant expression.
+	/// @details This constant is used to introduce variability in the frequency of audio signals, creating a more dynamic and realistic sound experience in simulations.
+	constexpr float FrequencyVariation = 0.02f;
+
+	/// @brief Defines the minimum time interval for frequency variation in seconds.
+	/// @details This constant specifies the minimum duration over which frequency variations can occur, ensuring that changes in pitch are gradual and perceptible in audio simulations.
+	constexpr float MinFrequencyVariationTime = 0.1f;
+
+	/// @brief Defines the maximum time interval for frequency variation in seconds.
+	/// @details This constant specifies the maximum duration over which frequency variations can occur, allowing for more pronounced changes in pitch while maintaining a natural sound experience in audio simulations.
+	constexpr float MaxFrequencyVariationTime = 4.0f;
 #pragma endregion
 }

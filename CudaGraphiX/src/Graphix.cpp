@@ -19,6 +19,9 @@ namespace Rendering {
 	bool show_bounding_box = false;
 	bool show_axes = false;
 	bool full_screen = false;
+	bool show_rainbow_lines = false;
+
+
 	void DrawFieldLines();
 	void DrawSphere(float cx, float cy, float cz, float radius = 0.2f, int slices = 12, int stacks = 12);
 
@@ -103,8 +106,8 @@ namespace Rendering {
 
 			// Normalize forward
 			float cameraDistance = 1.0f / sqrtf(dirX * dirX + dirY * dirY + dirZ * dirZ);
-			dirX *= cameraDistance; 
-			dirY *= cameraDistance; 
+			dirX *= cameraDistance;
+			dirY *= cameraDistance;
 			dirZ *= cameraDistance;
 
 			// Up vector world-space
@@ -138,7 +141,6 @@ namespace Rendering {
 				std::unique_lock<std::mutex> lock(mutex);
 				Acoustics::GenerateAcoustics(scene, time);
 				DrawFieldLines();
-
 			}
 
 			glfwSwapBuffers(window);
@@ -167,11 +169,26 @@ namespace Rendering {
 			for (int i = 0; i < length; i++) {
 
 				float t = static_cast<float>(i) / (length - 1);
+
 				float alpha = connected
 					? Constants::MaxAlpha - Constants::AlphaChange * 4.0f * t * (1.0f - t)
 					: Constants::MaxAlpha * (1 - t);
 
-				glColor4f(Constants::LineColorRed, Constants::LineColorGreen, Constants::LineColorBlue, alpha);
+
+				if (show_rainbow_lines) {
+
+					if (scene.poles[line_index / Constants::FieldLinesPerPole].strength > 0.0f) {
+						t = 1 - t;
+					}
+
+
+
+					float r = 1.5 - 0.6 * t, g = 1.0 - 0.4 * (1 - t), b = 0;
+					glColor4f(r, g, b, alpha);
+				}
+				else {
+					glColor4f(Constants::LineColorRed, Constants::LineColorGreen, Constants::LineColorBlue, alpha);
+				}
 				Geometry::Vector3f point = scene.field_lines[line_index][i];
 
 				if (i > 0)
@@ -242,7 +259,7 @@ namespace Rendering {
 
 
 		}
-		
+
 		if (show_axes || show_bounding_box) {
 			glEnd();
 		}

@@ -15,22 +15,16 @@ namespace Physics {
 
 	void animate_poles_cpu(Pole* poles) {
 
-		Geometry::Vector3f accelerations[Constants::PolesCount];
-
 		for (int i = 0; i < Constants::AnimationSteps; i++)
 		{
 			std::for_each(std::execution::par, poles, poles + Constants::PolesCount, [&](Physics::Pole& pole) {
-				int index = &pole - poles;
 				Geometry::Vector3f field_strength = naive_field_strength(poles, Constants::PolesCount, pole.position);
 				Geometry::Vector3f acceleration = field_strength * (pole.strength / pole.mass);
-				accelerations[index] = acceleration;
-
+				pole.acceleration = acceleration;
 				});
 
 			std::for_each(std::execution::par, poles, poles + Constants::PolesCount, [&](Physics::Pole& pole) {
-				int index = &pole - poles;
-				Geometry::Vector3f& acceleration = accelerations[index];
-				pole.velocity += acceleration * Constants::dt;
+				pole.velocity += pole.acceleration * Constants::dt;
 				pole.position += pole.velocity * Constants::dt;
 				});
 
@@ -42,7 +36,7 @@ namespace Physics {
 				float low_acceleration = 0.0f;
 
 				for (int i = 0; i < Constants::PolesCount; i++) {
-					float acceleration = Geometry::mag(accelerations[i]);
+					float acceleration = Geometry::mag(poles[i].acceleration);
 					average_acceleration += acceleration;
 
 					dominant_acceleration *= pow(acceleration, 1.0f / Constants::PolesCount);

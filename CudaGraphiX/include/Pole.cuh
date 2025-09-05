@@ -12,7 +12,7 @@
 namespace Physics {
 
 
-	constexpr float dx2 = 0.01f * Constants::dx * Constants::dx;
+	constexpr float dx2 = 0.001f * Constants::dx * Constants::dx;
 
 	/// @brief Represents a pole with physical properties such as mass, strength, position, and velocity.
 	/// @details This structure encapsulates the characteristics of a pole, which can be used in simulations involving magnetic fields. It includes properties for strength, mass, position, and velocity, allowing for dynamic interactions and animations.
@@ -34,6 +34,10 @@ namespace Physics {
 		/// @details This vector indicates the speed and direction of the pole's movement in 3D space.
 		Geometry::Vector3f velocity;
 
+		/// @brief Represents a 3-dimensional vector of floating-point values, used to denote the acceleration vector of the pole.
+		/// @details This vector indicates the rate of change of the pole's velocity in 3D space.
+		Geometry::Vector3f acceleration;
+
 		/// @brief Parameterized constructor initializes the pole with specified strength, mass, position, and velocity.
 		/// @details This constructor allows for the creation of a Pole object with specific physical properties.
 		/// @param strength The strength of the pole.
@@ -41,15 +45,25 @@ namespace Physics {
 		/// @param position The position of the pole in 3D space.
 		/// @param velocity The velocity of the pole in 3D space.
 		/// @return A Pole object initialized with the specified parameters.
-		__host__ __device__ inline Pole(float strength, float mass, Geometry::Vector3f position, Geometry::Vector3f velocity) : strength(strength), mass(mass), position(position), velocity(velocity) {}
+		__host__ __device__ inline Pole(float strength, float mass, Geometry::Vector3f position, Geometry::Vector3f velocity) : strength(strength), mass(mass), position(position), velocity(velocity), acceleration(Geometry::Vector3f()) {}
+
+		/// @brief Parameterized constructor initializes the pole with specified strength, mass, position, and velocity.
+		/// @details This constructor allows for the creation of a Pole object with specific physical properties.
+		/// @param strength The strength of the pole.
+		/// @param mass The mass of the pole.
+		/// @param position The position of the pole in 3D space.
+		/// @param velocity The velocity of the pole in 3D space.
+		/// @param acceleration The acceleration of the pole in 3D space.
+		/// @return A Pole object initialized with the specified parameters.
+		__host__ __device__ inline Pole(float strength, float mass, Geometry::Vector3f position, Geometry::Vector3f velocity, Geometry::Vector3f acceleration) : strength(strength), mass(mass), position(position), velocity(velocity), acceleration(acceleration) {}
 
 		/// @brief Default constructor for the Pole class, initializing its members to default values.
 		/// @details This constructor creates a Pole object with default values for strength, mass, position, and velocity.
 		/// @return Constructs a Pole object with strength and mass set to 0.0f, and position and velocity set to zero vectors.
-		__host__ __device__ inline Pole() : strength(0.0f), mass(0.0f), position(Geometry::Vector3f(0.0f, 0.0f, 0.0f)), velocity(Geometry::Vector3f(0.0f, 0.0f, 0.0f)) {}
+		__host__ __device__ inline Pole() : strength(0.0f), mass(0.0f), position(Geometry::Vector3f(0.0f, 0.0f, 0.0f)), velocity(Geometry::Vector3f(0.0f, 0.0f, 0.0f)), acceleration(Geometry::Vector3f()) {}
 
 		__host__ __device__ inline Pole operator-() const noexcept {
-			return Pole(strength, mass, -position, -velocity);
+			return Pole(strength, mass, -position, -velocity, -acceleration);
 		}
 	};
 
@@ -180,7 +194,7 @@ namespace Physics {
 	/// @param radius The radius of the sphere.
 	/// @param total The total number of points on the sphere.
 	/// @return A Vector3f representing the computed Fibonacci point on the sphere.
-	__host__ __device__ inline Geometry::Vector3f fibonacci_point( int index, int total, float radius) {
+	__host__ __device__ inline Geometry::Vector3f fibonacci_point(int index, int total, float radius) {
 		return fibonacci_point(Geometry::Vector3f(), index, total, radius);
 	}
 	/// @brief Animates the poles on the CPU.
