@@ -60,7 +60,7 @@ namespace Constants {
 
 	/// @brief Represents the field of view in degrees.
 	/// @details This constant defines the vertical field of view angle for the camera, affecting how much of the scene is visible in the rendered output.
-	constexpr float FieldOfViewDegrees = 45.0f;
+	constexpr float FieldOfViewDegrees = 60.0f;
 
 	/// @brief Calculates the field of view in radians from the field of view in degrees.
 	/// @details This constant is derived from the FieldOfViewDegrees constant and is used in calculations that require the field of view to be expressed in radians, such as in perspective projection matrices.
@@ -205,7 +205,7 @@ namespace Constants {
 #pragma region Animation
 	/// @brief Specifies the delay duration for an animation in seconds.
 	/// @details This constant defines how long the animation will pause or wait before proceeding to the next step, allowing for controlled timing in the animation sequence.
-	constexpr int AnimationDelaySeconds = 0;
+	constexpr int AnimationDelaySeconds = 3;
 
 	/// @brief Defines the number of steps in an animation.
 	/// @details This constant indicates how many discrete steps the animation will take to transition from one state to another, allowing for smoother animations.
@@ -277,19 +277,19 @@ namespace Constants {
 
 	/// @brief Defines the amplitude scaling factor as a constant expression.
 	/// @details This constant is used to scale the amplitude of audio signals, allowing for adjustments in volume and intensity during sound processing.
-	constexpr float Amplitude = 2.0;
+	constexpr float Amplitude = 4.0;
 
 	/// @brief Defines the amplitude variation factor as a constant expression.
 	/// @details This constant is used to introduce variability in the amplitude of audio signals, creating a more dynamic and realistic sound experience in simulations.
-	constexpr float AmplitudeVariation = 0.45;
+	constexpr float AmplitudeVariation = 0.25;
 
 	/// @brief Defines the minimum time interval for amplitude variation in seconds.
 	/// @details This constant specifies the minimum duration over which amplitude variations can occur, ensuring that changes in volume are gradual and perceptible in audio simulations.
-	constexpr float MinAmplitudeVariationTime = 0.5f;
+	constexpr float MinAmplitudeVariationTime = 0.25f;
 
 	/// @brief Defines the maximum time interval for amplitude variation in seconds.
 	/// @details This constant specifies the maximum duration over which amplitude variations can occur, allowing for more pronounced changes in volume while maintaining a natural sound experience in audio simulations.
-	constexpr float MaxAmplitudeVariationTime = 3.0f;
+	constexpr float MaxAmplitudeVariationTime = 4.0f;
 
 	/// @brief Defines the maximum frequency value.
 	/// @details This constant sets the upper limit for frequency in sound simulations, ensuring that audio remains within a perceptible range and does not exceed typical human hearing capabilities.

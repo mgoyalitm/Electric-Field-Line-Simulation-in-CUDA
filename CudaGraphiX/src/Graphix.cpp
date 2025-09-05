@@ -56,10 +56,9 @@ namespace Rendering {
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		double start_time = glfwGetTime();
-		const float fov = 45.0f;
 		const float aspect = 1600.0f / 1080.0f;
 		const float n = 0.1f, f = 100.0f;
-		float t = n * tanf(fov * 0.5f * 3.1415926f / 180.0f);
+		float t = n * tanf(Constants::FieldOfViewRadians /2.0f);
 		float r = t * aspect;
 		glFrustum(-r, r, -t, t, n, f);
 
